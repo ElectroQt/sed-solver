@@ -3,11 +3,6 @@ import Solver from "./Solver.js";
 
 async function Main() {
 	const argv = minimist(process.argv.slice(2));
-
-	if(!argv._[0]) {
-		console.error("Please provide sed-puzzle.com link or puzzle ID");
-		return;
-	}
 	
 	let maxLength = argv.maxLength;
 	if(argv.l) maxLength = argv.l;
@@ -25,7 +20,19 @@ async function Main() {
 	if(argv.alg) algorithm = argv.alg;
 	if(argv.a) algorithm = argv.a;
 
-	await Solver.SolveLink(argv._[0], algorithm ?? "BFS");
+	let path = argv.file;
+	if(argv.f) path = argv.f;
+	if(path) { // Solve local file
+		await Solver.SolveFile(path, algorithm ?? "BFS");
+	}
+	else { // Solve link
+		const link = argv._[0];
+		if(!link) {
+			console.error("Please provide sed-puzzle.com link or puzzle ID");
+			return;
+		}
+		await Solver.SolveLink(link, algorithm ?? "BFS");
+	}
 }
 
 await Main();

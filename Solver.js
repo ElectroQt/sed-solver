@@ -87,7 +87,7 @@ export default class Solver {
 			const fwQueueNew = [];
 			const bwQueueNew = [];
 			while(fwQueue.length > 0) {
-				const {str, halfSteps} = fwQueue.shift();
+				const {str} = fwQueue.shift();
 				// console.log(`CURRENT FORWARD: ${str}`);
 				for(let i = 0; i < this.rules.length; i++) {
 					const appliedStr = this.rules[i].Apply(str);
@@ -111,7 +111,7 @@ export default class Solver {
 				}
 			}
 			while(bwQueue.length > 0) {
-				const {str, halfSteps} = bwQueue.shift();
+				const {str} = bwQueue.shift();
 				// console.log(`CURRENT BACKWARD: ${str}`);
 				for(let i = 0; i < this.rules.length; i++) {
 					const preimages = this.rules[i].ReverseApply(str);
@@ -124,13 +124,13 @@ export default class Solver {
 							continue;
 						}
 						// It's a new string!
-						bwTable.set(preimage, {ruleUsed: i, nextStr: str});
+						bwTable.set(preimage, { ruleUsed: i, nextStr: str });
 						if(fwTable.has(preimage)) { // Meets in the middle!
 							midpoint = preimage;
 							break outerLoop;
 						}
 						// Next iteration
-						bwQueueNew.push({str: preimage, halfSteps: halfSteps+1});
+						bwQueueNew.push({ str: preimage });
 					}
 				}
 			}
@@ -174,8 +174,24 @@ export default class Solver {
 		console.timeEnd("Bidirectional BFS");
 	}
 
+	static async SolveFile(path, search="BFS") {
+		const fetcher = new Fetcher(true, path);
+		await fetcher.Read();
+		const solver = new Solver(fetcher.rules, fetcher.initial);
+		switch(search) {
+			case "BFS":
+				solver.Bfs();
+				break;
+			case "BIDIRECTIONAL":
+				solver.Bidirectional();
+				break;
+			default:
+				throw new Error("Unrecognized algorithm type");
+		}
+	}
+
 	static async SolveLink(link, search="BFS") {
-		const fetcher = new Fetcher(link);
+		const fetcher = new Fetcher(false, link);
 		await fetcher.Fetch();
 		const solver = new Solver(fetcher.rules, fetcher.initial);
 		switch(search) {
