@@ -1,6 +1,6 @@
 import Rule from "./Rule.js";
 import fetch from "node-fetch";
-import { readFile } from "fs/promises";
+import { readFile, writeFile } from "fs/promises";
 
 export default class Fetcher {
 	constructor(isLocal, path) {
@@ -16,25 +16,38 @@ export default class Fetcher {
 		this.problemId = result[1];
 	}
 
-	async Fetch() {
+	async Fetch(saveCopyPath) {
 		try {
 			const response = await fetch(`https://api.sed-puzzle.com/problems/${this.problemId}`);
 			var data = await response.json();
 
+			this.initial = data.task.initialStr;
 			this.rules = [];
 			data.task.rules.forEach(ruleSet => {
 				ruleSet.forEach(rule => {
-					// console.log(rule);
 					this.rules.push(new Rule(rule.beforeStr, rule.afterStr));
-				})
+				});
 			});
-			this.initial = data.task.initialStr;
 		}
 		catch(e) {
 			throw new Error("Something is wrong with the URL you provided");
 		}
-		// console.log(this.rules);
-		// console.log(this.initial);
+
+		try {
+			if(saveCopyPath) {
+				let content = data.task.initialStr + "\n\n";
+				data.task.rules.forEach(ruleSet => {
+					ruleSet.forEach(rule => {
+						content += `${rule.beforeStr} -> ${rule.afterStr}\n`;
+					});
+					content += "\n";
+				});
+				await writeFile(saveCopyPath, content);
+			}
+		}
+		catch(e) {
+			throw new Error("Something is wrong with the save path you provided");
+		}
 	}
 
 	async Read() {

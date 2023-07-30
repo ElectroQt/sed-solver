@@ -20,6 +20,9 @@ async function Main() {
 	if(argv.alg) algorithm = argv.alg;
 	if(argv.a) algorithm = argv.a;
 
+	let saveCopyPath = argv.saveCopy;
+	if(argv.c) saveCopyPath = argv.c;
+
 	let path = argv.file;
 	if(argv.f) path = argv.f;
 	if(path) { // Solve local file
@@ -31,7 +34,7 @@ async function Main() {
 			console.error("Please provide sed-puzzle.com link or puzzle ID");
 			return;
 		}
-		await Solver.SolveLink(link, algorithm ?? "BFS");
+		await Solver.SolveLink(link, algorithm ?? "BFS", saveCopyPath);
 	}
 }
 

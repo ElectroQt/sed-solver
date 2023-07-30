@@ -190,9 +190,9 @@ export default class Solver {
 		}
 	}
 
-	static async SolveLink(link, search="BFS") {
+	static async SolveLink(link, search="BFS", saveCopyPath) {
 		const fetcher = new Fetcher(false, link);
-		await fetcher.Fetch();
+		await fetcher.Fetch(saveCopyPath);
 		const solver = new Solver(fetcher.rules, fetcher.initial);
 		switch(search) {
 			case "BFS":
