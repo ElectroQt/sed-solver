@@ -174,30 +174,25 @@ export default class Solver {
 		console.timeEnd("Bidirectional BFS");
 	}
 
-	static async SolveFile(path, search="BFS") {
+	static async SolveFile(path, algo="BFS") {
 		const fetcher = new Fetcher(true, path);
 		await fetcher.Read();
-		const solver = new Solver(fetcher.rules, fetcher.initial);
-		switch(search) {
-			case "BFS":
-				solver.Bfs();
-				break;
-			case "BIDIRECTIONAL":
-				solver.Bidirectional();
-				break;
-			default:
-				throw new Error("Unrecognized algorithm type");
-		}
+		await this.Solve(fetcher, algo);
 	}
 
-	static async SolveLink(link, search="BFS", saveCopyPath) {
+	static async SolveLink(link, algo="BFS", saveCopyPath) {
 		const fetcher = new Fetcher(false, link);
 		await fetcher.Fetch(saveCopyPath);
+		await this.Solve(fetcher, algo);
+	}
+
+	static async Solve(fetcher, algo) {
 		const solver = new Solver(fetcher.rules, fetcher.initial);
-		switch(search) {
+		switch(algo) {
 			case "BFS":
 				solver.Bfs();
 				break;
+			case "BI":
 			case "BIDIRECTIONAL":
 				solver.Bidirectional();
 				break;
